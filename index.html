@@ -1051,24 +1051,29 @@ btnStart.addEventListener("click", () => {
     clampButtonInside(btnNo);
   }
 
-  function clampButtonInside(btn){
-    const area = choiceArea.getBoundingClientRect();
-    const br = btn.getBoundingClientRect();
-    const w = br.width, h = br.height;
+function clampButtonInside(btn){
+  const area = choiceArea.getBoundingClientRect();
+  const br = btn.getBoundingClientRect();
+  const w = br.width, h = br.height;
 
-    // Convert current left/top (px) relative to choiceArea
-    const left = parseFloat(btn.style.left || "0");
-    const top = parseFloat(btn.style.top || "0");
+  const leftRaw = (btn.style.left || "0").trim();
+  const topRaw  = (btn.style.top  || "0").trim();
 
-    const maxX = area.width - w - 8;
-    const maxY = area.height - h - 8;
+  // Supporte "12%" ET "120px"
+  let left = leftRaw.includes("%") ? (area.width  * parseFloat(leftRaw) / 100) : parseFloat(leftRaw);
+  let top  = topRaw.includes("%")  ? (area.height * parseFloat(topRaw)  / 100) : parseFloat(topRaw);
 
-    const nx = clamp(left, 8, maxX);
-    const ny = clamp(top, 8, maxY);
+  const maxX = area.width - w - 8;
+  const maxY = area.height - h - 8;
 
-    btn.style.left = `${nx}px`;
-    btn.style.top  = `${ny}px`;
-  }
+  const nx = clamp(left, 8, maxX);
+  const ny = clamp(top,  8, maxY);
+
+  // On force en px ensuite (stable)
+  btn.style.left = `${nx}px`;
+  btn.style.top  = `${ny}px`;
+}
+
 
   function moveNoAwayFrom(x, y){
     const area = choiceArea.getBoundingClientRect();
