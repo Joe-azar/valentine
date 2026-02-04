@@ -610,7 +610,6 @@
 
                 <div class="btnrow">
                   <button class="btn" id="btnReplay"><span aria-hidden="true">🔁</span> Rejouer</button>
-                  <button class="btn" id="btnShareHint"><span aria-hidden="true">📩</span> Astuce “partage”</button>
                 </div>
               </div>
             </div>
@@ -632,7 +631,6 @@
         </p>
         <div class="actions">
           <button class="btn good" id="btnClose"><span aria-hidden="true">💞</span> Ok bébé</button>
-          <button class="btn primary" id="btnFinalMessage"><span aria-hidden="true">📝</span> Message final</button>
         </div>
       </div>
     </div>
@@ -640,6 +638,20 @@
 
 <script>
 (() => {
+    // =====================
+  // 🎵 MUSIQUE ROMANTIQUE (music.mp3)
+  // =====================
+  let bgMusic = new Audio("music.mp3");
+  bgMusic.loop = true;
+  bgMusic.volume = 0.22; // ajuste entre 0.15 et 0.35 si besoin
+  let musicStarted = false;
+
+  function startMusic() {
+    if (musicStarted) return;
+    musicStarted = true;
+    bgMusic.play().catch(() => {});
+  }
+
   // =====================
   // 0) PERSONNALISATION
   // =====================
@@ -696,11 +708,9 @@
   const btnYes = $("#btnYes");
   const btnNo = $("#btnNo");
   const btnReplay = $("#btnReplay");
-  const btnShareHint = $("#btnShareHint");
 
   const overlay = $("#overlay");
   const btnClose = $("#btnClose");
-  const btnFinalMessage = $("#btnFinalMessage");
   const modalMsg = $("#modalMsg");
 
   const clockEl = $("#clock");
@@ -827,25 +837,28 @@
 
   // Keyboard shortcut (Enter)
   window.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" && views.intro.classList.contains("active")) {
-      startFlow();
-    }
+if (e.key === "Enter" && views.intro.classList.contains("active")) {
+  startMusic();
+  startFlow();
+}
+
   });
 
-  btnAudio.addEventListener("click", async () => {
-    audioEnabled = !audioEnabled;
-    if (audioEnabled) {
-      // Ensure context resumed on user gesture
-      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      if (audioCtx.state === "suspended") await audioCtx.resume();
-      btnAudio.innerHTML = "🎵 Ambiance: ON";
-      addLog("[audio] Ambiance activée ✅");
-      beep(440,.05,"sine",.06);
-    } else {
-      btnAudio.innerHTML = "🎵 Activer l’ambiance";
-      addLog("[audio] Ambiance désactivée.");
-    }
-  });
+btnAudio.addEventListener("click", async () => {
+  // démarre musique (obligatoirement sur action utilisateur)
+  startMusic();
+
+  // active aussi les petits "beeps" si tu veux les garder
+  audioEnabled = true;
+
+  // (optionnel) resume WebAudio si tu utilises beep()
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === "suspended") await audioCtx.resume();
+
+  btnAudio.innerHTML = "🎵 Ambiance : ON";
+  addLog("[audio] Musique romantique activée 💘");
+});
+
 
   btnCustomize.addEventListener("click", () => {
     const her = prompt("Prénom de ta copine :", CONFIG.herName) || CONFIG.herName;
@@ -858,7 +871,11 @@
     addLog(`[cfg] myName="${CONFIG.myName}"`);
   });
 
-  btnStart.addEventListener("click", startFlow);
+btnStart.addEventListener("click", () => {
+  startMusic();
+  startFlow();
+});
+
 
   function startFlow(){
     beep(660,.05,"sine",.07);
@@ -1137,11 +1154,15 @@
     successSound();
     startConfetti();
     overlay.classList.add("show");
+    bgMusic.volume = 0.16;
 
-    modalMsg.innerHTML =
-      `Statut mis à jour : <span class="glow">VALENTINE = TRUE</span> 💘` +
-      `<br/><span class="glow">${CONFIG.myName}</span> → <span class="glow">${CONFIG.herName}</span> : connexion sécurisée ✅` +
-      `<br/><br/><span style="color:rgba(255,255,255,.85)">${escapeHtml(CONFIG.finalMessage).replace(/\n/g,"<br/>")}</span>`;
+
+modalMsg.innerHTML =
+  `Statut mis à jour : <span class="glow">VALENTINE = TRUE</span> 💘` +
+  `<br/><span class="glow">${CONFIG.myName}</span> → <span class="glow">${CONFIG.herName}</span> : connexion sécurisée ✅` +
+  `<br/>Ok… maintenant je veux ma récompense : un câlin + une photo. 😌` +
+  `<br/><br/><span style="color:rgba(255,255,255,.85)">${escapeHtml(CONFIG.finalMessage).replace(/\n/g,"<br/>")}</span>`;
+
   }
 
   btnClose.addEventListener("click", () => {
@@ -1149,30 +1170,11 @@
     stopConfettiSoon();
   });
 
-  btnFinalMessage.addEventListener("click", () => {
-    alert(CONFIG.finalMessage);
-  });
-
   btnReplay.addEventListener("click", () => {
     overlay.classList.remove("show");
     stopConfettiSoon();
     setView("intro");
     addLog("[run] Reboot…");
-  });
-
-  btnShareHint.addEventListener("click", async () => {
-    const text =
-      `J’ai un truc pour toi 😏\n` +
-      `Ouvre ça sur ton téléphone : (lien)\n` +
-      `PS: attrape les cœurs 💘`;
-    try{
-      await navigator.clipboard.writeText(text);
-      addLog("[share] Texte copié dans le presse-papiers ✅");
-      beep(660,.05,"sine",.06);
-      alert("Texte d’envoi copié ✅\nColle-le dans WhatsApp/SMS.");
-    }catch{
-      alert("Copie manuelle :\n\n" + text);
-    }
   });
 
   // =====================
