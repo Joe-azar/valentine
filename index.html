@@ -1,0 +1,1276 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Valentine.exe</title>
+  <meta name="theme-color" content="#0b0f1a" />
+  <style>
+    :root{
+      --bg:#070A12;
+      --card: rgba(255,255,255,.06);
+      --card2: rgba(255,255,255,.10);
+      --stroke: rgba(255,255,255,.14);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.65);
+      --accent: #ff4fd8;
+      --accent2:#7c4dff;
+      --good:#28d17c;
+      --bad:#ff3b52;
+      --shadow: 0 18px 50px rgba(0,0,0,.55);
+      --radius: 22px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: var(--sans);
+      color:var(--text);
+      background: radial-gradient(1200px 800px at 20% 10%, rgba(124,77,255,.22), transparent 55%),
+                  radial-gradient(900px 700px at 85% 20%, rgba(255,79,216,.18), transparent 50%),
+                  radial-gradient(1000px 800px at 50% 90%, rgba(40,209,124,.10), transparent 60%),
+                  var(--bg);
+      overflow:hidden;
+    }
+
+    /* subtle animated grid */
+    .grid{
+      position:fixed; inset:-20%;
+      background:
+        linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
+      background-size: 48px 48px;
+      transform: rotate(-8deg);
+      opacity:.35;
+      filter: blur(.2px);
+      animation: drift 18s linear infinite;
+      pointer-events:none;
+    }
+    @keyframes drift{
+      0%{transform: translate3d(0,0,0) rotate(-8deg)}
+      100%{transform: translate3d(-140px,-120px,0) rotate(-8deg)}
+    }
+
+    .noise{
+      position:fixed; inset:0;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
+      opacity:.08;
+      mix-blend-mode: overlay;
+      pointer-events:none;
+    }
+
+    .wrap{
+      position:relative;
+      height:100%;
+      display:grid;
+      place-items:center;
+      padding: 18px;
+    }
+
+    .card{
+      width:min(860px, 100%);
+      background: linear-gradient(180deg, rgba(255,255,255,.09), rgba(255,255,255,.05));
+      border:1px solid var(--stroke);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      position:relative;
+    }
+
+    .topbar{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      justify-content:space-between;
+      padding: 14px 16px;
+      background: rgba(0,0,0,.20);
+      border-bottom: 1px solid rgba(255,255,255,.09);
+    }
+
+    .dots{display:flex; gap:8px; align-items:center}
+    .dot{width:10px;height:10px;border-radius:999px;background:rgba(255,255,255,.22)}
+    .dot:nth-child(1){background:#ff5f57}
+    .dot:nth-child(2){background:#febc2e}
+    .dot:nth-child(3){background:#28c840}
+
+    .title{
+      font-family: var(--mono);
+      font-size: 13px;
+      letter-spacing:.3px;
+      color: rgba(255,255,255,.72);
+      display:flex; align-items:center; gap:10px;
+      user-select:none;
+    }
+
+    .chip{
+      font-family: var(--mono);
+      font-size: 12px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.07);
+      border:1px solid rgba(255,255,255,.10);
+      color: rgba(255,255,255,.75);
+      user-select:none;
+      display:flex; gap:8px; align-items:center;
+    }
+
+    .content{
+      padding: 22px;
+      display:grid;
+      gap: 16px;
+    }
+
+    .hero{
+      display:grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 16px;
+      align-items:stretch;
+    }
+
+    @media (max-width: 820px){
+      .hero{grid-template-columns:1fr}
+    }
+
+    .panel{
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius: 18px;
+      padding: 18px;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .panel:before{
+      content:"";
+      position:absolute; inset:-60% -20%;
+      background: radial-gradient(circle at 30% 30%, rgba(255,79,216,.22), transparent 60%),
+                  radial-gradient(circle at 70% 60%, rgba(124,77,255,.18), transparent 55%);
+      filter: blur(10px);
+      opacity:.8;
+      pointer-events:none;
+    }
+
+    h1{
+      margin:0 0 8px 0;
+      font-size: clamp(22px, 3.6vw, 34px);
+      line-height:1.1;
+      letter-spacing:-.5px;
+    }
+    p{margin:0; color: var(--muted); line-height:1.55}
+    .mono{font-family: var(--mono)}
+    .sub{
+      margin-top: 10px;
+      display:flex; flex-wrap:wrap; gap:10px;
+      color: rgba(255,255,255,.70);
+      font-size: 14px;
+    }
+
+    .btnrow{display:flex; gap:10px; flex-wrap:wrap; margin-top: 16px}
+    button{
+      border:0;
+      background: none;
+      color: inherit;
+      font: inherit;
+      cursor:pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn{
+      padding: 12px 14px;
+      border-radius: 14px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.07);
+      transition: transform .12s ease, background .12s ease, border-color .12s ease;
+      display:inline-flex; gap:10px; align-items:center;
+      user-select:none;
+    }
+    .btn:hover{transform: translateY(-1px); background: rgba(255,255,255,.10); border-color: rgba(255,255,255,.20)}
+    .btn:active{transform: translateY(1px) scale(.99)}
+    .primary{
+      background: linear-gradient(135deg, rgba(255,79,216,.35), rgba(124,77,255,.25));
+      border-color: rgba(255,79,216,.35);
+    }
+    .primary:hover{background: linear-gradient(135deg, rgba(255,79,216,.42), rgba(124,77,255,.30)); border-color: rgba(255,79,216,.45)}
+    .good{
+      background: linear-gradient(135deg, rgba(40,209,124,.32), rgba(255,79,216,.20));
+      border-color: rgba(40,209,124,.38);
+    }
+
+    .kbd{
+      font-family: var(--mono);
+      font-size: 12px;
+      padding: 3px 8px;
+      border-radius: 8px;
+      background: rgba(0,0,0,.28);
+      border:1px solid rgba(255,255,255,.12);
+      color: rgba(255,255,255,.82);
+    }
+
+    /* Right panel mini-display */
+    .screen{
+      background: rgba(0,0,0,.25);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 16px;
+      overflow:hidden;
+      display:grid;
+      grid-template-rows:auto 1fr auto;
+      min-height: 260px;
+    }
+    .screenhead{
+      padding: 12px 12px;
+      display:flex; justify-content:space-between; align-items:center;
+      border-bottom:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.04);
+      font-family: var(--mono);
+      font-size: 12px;
+      color: rgba(255,255,255,.72);
+    }
+    .screenbody{
+      padding: 14px;
+      display:grid;
+      gap: 10px;
+      align-content:start;
+    }
+    .log{
+      font-family: var(--mono);
+      font-size: 12px;
+      color: rgba(255,255,255,.70);
+      line-height:1.4;
+      white-space: pre-wrap;
+    }
+    .progress{
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.12);
+      overflow:hidden;
+    }
+    .bar{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, rgba(255,79,216,.85), rgba(124,77,255,.85), rgba(40,209,124,.85));
+      transition: width .25s ease;
+    }
+    .screenfoot{
+      padding: 12px 12px;
+      border-top:1px solid rgba(255,255,255,.10);
+      display:flex; gap:10px; justify-content:space-between; align-items:center;
+      background: rgba(255,255,255,.03);
+      color: rgba(255,255,255,.72);
+      font-size: 12px;
+      font-family: var(--mono);
+    }
+
+    /* Steps / views */
+    .view{display:none}
+    .view.active{display:block}
+
+    /* Game arena */
+    .arena{
+      position:relative;
+      height: 340px;
+      border-radius: 18px;
+      background: radial-gradient(700px 300px at 20% 20%, rgba(255,79,216,.18), transparent 60%),
+                  radial-gradient(600px 300px at 80% 30%, rgba(124,77,255,.16), transparent 55%),
+                  rgba(0,0,0,.22);
+      border:1px solid rgba(255,255,255,.12);
+      overflow:hidden;
+      touch-action:none;
+    }
+    @media (max-width: 520px){
+      .arena{height: 310px}
+    }
+
+    .target{
+      position:absolute;
+      width: 64px; height: 64px;
+      border-radius: 18px;
+      display:grid; place-items:center;
+      background: linear-gradient(135deg, rgba(255,79,216,.35), rgba(124,77,255,.25));
+      border:1px solid rgba(255,255,255,.18);
+      box-shadow: 0 12px 30px rgba(0,0,0,.35);
+      transform: translate(-50%,-50%);
+      transition: transform .10s ease;
+      user-select:none;
+    }
+    .target:active{transform: translate(-50%,-50%) scale(.96)}
+    .heart{
+      font-size: 28px;
+      filter: drop-shadow(0 6px 10px rgba(0,0,0,.35));
+    }
+
+    .hud{
+      display:flex; flex-wrap:wrap; gap:10px;
+      align-items:center; justify-content:space-between;
+      margin-top: 12px;
+      font-family: var(--mono);
+      color: rgba(255,255,255,.78);
+      font-size: 12px;
+    }
+    .pill{
+      padding: 8px 10px;
+      border-radius: 999px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05);
+      display:inline-flex; gap:8px; align-items:center;
+      user-select:none;
+    }
+
+    /* Final question */
+    .finalbox{
+      position:relative;
+      padding: 22px;
+      border-radius: 18px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.22);
+      overflow:hidden;
+    }
+    .finalbox:before{
+      content:"";
+      position:absolute; inset:-40% -20%;
+      background: radial-gradient(circle at 20% 20%, rgba(255,79,216,.22), transparent 60%),
+                  radial-gradient(circle at 80% 50%, rgba(124,77,255,.18), transparent 55%);
+      filter: blur(10px);
+      opacity:.9;
+      pointer-events:none;
+    }
+    .finalq{
+      position:relative;
+      display:grid; gap: 10px;
+    }
+    .finalq h2{
+      margin:0;
+      font-size: clamp(22px, 3.3vw, 34px);
+      letter-spacing:-.4px;
+      line-height:1.1;
+    }
+    .finalq .small{color: var(--muted); font-size: 14px; line-height:1.55}
+
+    .choiceArea{
+      position:relative;
+      margin-top: 14px;
+      height: 180px;
+      border-radius: 16px;
+      border:1px dashed rgba(255,255,255,.18);
+      background: rgba(255,255,255,.03);
+      overflow:hidden;
+      touch-action:none;
+    }
+    .choiceBtn{
+      position:absolute;
+      min-width: 138px;
+      justify-content:center;
+      border-radius: 14px;
+      padding: 12px 14px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.07);
+      display:inline-flex; gap:10px; align-items:center;
+      transition: transform .10s ease, background .12s ease;
+      user-select:none;
+      white-space:nowrap;
+    }
+    .choiceBtn:hover{background: rgba(255,255,255,.10)}
+    .choiceBtn.good{background: linear-gradient(135deg, rgba(40,209,124,.30), rgba(255,79,216,.18)); border-color: rgba(40,209,124,.40)}
+    .choiceBtn.bad{background: linear-gradient(135deg, rgba(255,59,82,.20), rgba(255,255,255,.06)); border-color: rgba(255,59,82,.30)}
+
+    .hint{
+      margin-top: 10px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      color: rgba(255,255,255,.70);
+      font-size: 13px;
+      position:relative;
+    }
+
+    /* Modal overlay success */
+    .overlay{
+      position:fixed; inset:0;
+      display:none;
+      background: rgba(0,0,0,.55);
+      backdrop-filter: blur(8px);
+      align-items:center;
+      justify-content:center;
+      padding: 18px;
+      z-index: 50;
+    }
+    .overlay.show{display:flex}
+    .modal{
+      width:min(720px, 100%);
+      border-radius: 22px;
+      border:1px solid rgba(255,255,255,.16);
+      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.06));
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      position:relative;
+    }
+    .modal .inner{
+      padding: 22px;
+      position:relative;
+    }
+    .modal h3{
+      margin:0 0 10px;
+      font-size: clamp(22px, 3.2vw, 30px);
+      letter-spacing:-.4px;
+    }
+    .modal p{margin:0; color: rgba(255,255,255,.80)}
+    .modal .actions{margin-top: 16px; display:flex; gap:10px; flex-wrap:wrap}
+
+    canvas#confetti{
+      position:fixed; inset:0;
+      pointer-events:none;
+      z-index: 60;
+    }
+
+    /* tiny footer */
+    .footnote{
+      text-align:center;
+      color: rgba(255,255,255,.55);
+      font-size: 12px;
+      padding-top: 2px;
+      user-select:none;
+    }
+    .glow{
+      color: rgba(255,255,255,.92);
+      text-shadow: 0 0 22px rgba(255,79,216,.35);
+    }
+
+    /* Accessibility */
+    .sr-only{
+      position:absolute;
+      width:1px;height:1px;
+      padding:0;margin:-1px;
+      overflow:hidden;clip:rect(0,0,0,0);
+      white-space:nowrap;border:0;
+    }
+  </style>
+</head>
+<body>
+  <div class="grid"></div>
+  <div class="noise"></div>
+
+  <canvas id="confetti"></canvas>
+
+  <div class="wrap">
+    <div class="card" role="application" aria-label="Valentine.exe">
+      <div class="topbar">
+        <div class="dots" aria-hidden="true">
+          <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        </div>
+        <div class="title">
+          <span>valentine.exe</span>
+          <span class="chip"><span aria-hidden="true">⚡</span><span id="modeLabel">INIT</span></span>
+        </div>
+        <div class="chip" id="timeChip"><span aria-hidden="true">🕒</span><span class="mono" id="clock">--:--</span></div>
+      </div>
+
+      <div class="content">
+        <!-- VIEW 1: Intro -->
+        <section class="view active" id="view-intro" aria-labelledby="introTitle">
+          <div class="hero">
+            <div class="panel">
+              <h1 id="introTitle">⚙️ Expérience privée : <span class="glow" id="herName">Haffsa</span> x <span class="glow" id="myName">Joe</span></h1>
+              <p>
+                J’ai codé un truc pour toi. Pas un “message”, pas un “texte”… une <span class="glow">expérience</span>.
+                <br/>Si tu es prête, lance le programme.
+              </p>
+
+              <div class="sub">
+                <span class="pill">🔒 Session: <span class="glow">CONFIDENTIEL</span></span>
+                <span class="pill">📱 Compatible: PC + Mobile</span>
+                <span class="pill">🎮 Mini-jeu: <span class="glow">Capture le cœur</span></span>
+              </div>
+
+              <div class="btnrow">
+                <button class="btn primary" id="btnStart">
+                  <span aria-hidden="true">▶</span> Démarrer
+                  <span class="kbd" aria-hidden="true">ENTER</span>
+                </button>
+                <button class="btn" id="btnAudio">
+                  <span aria-hidden="true">🎵</span> Activer l’ambiance
+                </button>
+                <button class="btn" id="btnCustomize">
+                  <span aria-hidden="true">🛠</span> Personnaliser
+                </button>
+              </div>
+
+              <div class="footnote">Astuce : appuie sur <span class="kbd">Enter</span> • sur mobile : touche l’écran.</div>
+            </div>
+
+            <div class="panel">
+              <div class="screen" aria-label="Console">
+                <div class="screenhead">
+                  <span>Console</span>
+                  <span class="mono" id="buildTag">build v1.0.0</span>
+                </div>
+                <div class="screenbody">
+                  <div class="log" id="log">
+[boot] Initialisation…
+[boot] Vérification du cœur…
+[boot] Statut: stable ✅
+[boot] Chargement des émotions: 100%
+                  </div>
+                  <div class="progress" aria-label="Progression"><div class="bar" id="bar"></div></div>
+                </div>
+                <div class="screenfoot">
+                  <span>status: <span class="glow" id="status">READY</span></span>
+                  <span class="mono">press ENTER</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- VIEW 2: Game -->
+        <section class="view" id="view-game" aria-labelledby="gameTitle">
+          <div class="panel">
+            <h1 id="gameTitle">🎮 Mini-jeu : Capture le cœur</h1>
+            <p>
+              Règle : tu dois attraper <span class="glow">3 cœurs</span>.
+              À chaque capture, tu débloques une étape du programme. 😏
+            </p>
+
+            <div class="arena" id="arena" aria-label="Zone de jeu">
+              <div class="target" id="target" role="button" aria-label="Attraper le coeur">
+                <div class="heart" aria-hidden="true">💘</div>
+              </div>
+            </div>
+
+            <div class="hud">
+              <div class="pill">captures: <span class="glow" id="captures">0</span>/3</div>
+              <div class="pill">niveau: <span class="glow" id="level">EASY</span></div>
+              <div class="pill">indice: <span class="glow">tape / clique vite</span></div>
+            </div>
+
+            <div class="btnrow" style="margin-top:14px">
+              <button class="btn" id="btnBackIntro"><span aria-hidden="true">←</span> Retour</button>
+              <button class="btn primary" id="btnSkipGame"><span aria-hidden="true">⏩</span> (Cheat) Passer</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- VIEW 3: Compile -->
+        <section class="view" id="view-compile" aria-labelledby="compTitle">
+          <div class="panel">
+            <h1 id="compTitle">🧠 Compilation en cours…</h1>
+            <p>
+              Analyse des paramètres… <span class="glow">compatibilité parfaite détectée</span>.
+              <br/>Ne panique pas. C’est normal si ton cœur accélère un peu.
+            </p>
+
+            <div class="screen" style="margin-top:14px">
+              <div class="screenhead">
+                <span>Compiler</span>
+                <span class="mono" id="compilePct">0%</span>
+              </div>
+              <div class="screenbody">
+                <div class="log" id="compileLog">[compile] Starting…</div>
+                <div class="progress"><div class="bar" id="compileBar"></div></div>
+              </div>
+              <div class="screenfoot">
+                <span>target: <span class="glow">ValentineMode</span></span>
+                <span class="mono">--optimize=love</span>
+              </div>
+            </div>
+
+            <div class="btnrow" style="margin-top:14px">
+              <button class="btn" id="btnAbort"><span aria-hidden="true">✖</span> Annuler</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- VIEW 4: Final -->
+        <section class="view" id="view-final" aria-labelledby="finalTitle">
+          <div class="panel">
+            <div class="finalbox">
+              <div class="finalq">
+                <h2 id="finalTitle">💌 Question finale (aucun retour arrière possible)</h2>
+                <div class="small" id="finalText">
+                  J’ai codé beaucoup de choses… mais il y a une décision que je n’ai jamais voulu laisser au hasard.
+                  <br/><span class="glow">Veux-tu être ma Valentine ?</span>
+                </div>
+
+                <div class="choiceArea" id="choiceArea" aria-label="Zone de choix">
+                  <button class="choiceBtn good" id="btnYes" style="left:12%; top:58%;">
+                    <span aria-hidden="true">✅</span> OUI 💖
+                  </button>
+                  <button class="choiceBtn bad" id="btnNo" style="left:58%; top:22%;">
+                    <span aria-hidden="true">❌</span> NON 🙃
+                  </button>
+                </div>
+
+                <div class="hint">
+                  <span class="pill">Astuce: le bouton “NON” est… <span class="glow">capricieux</span>.</span>
+                  <span class="pill">PC: approche ta souris • Mobile: touche-le 😈</span>
+                </div>
+
+                <div class="btnrow">
+                  <button class="btn" id="btnReplay"><span aria-hidden="true">🔁</span> Rejouer</button>
+                  <button class="btn" id="btnShareHint"><span aria-hidden="true">📩</span> Astuce “partage”</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Success overlay -->
+  <div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal">
+      <div class="inner">
+        <h3 id="modalTitle">🎉 Mission réussie !</h3>
+        <p id="modalMsg">
+          Statut mis à jour : <span class="glow">VALENTINE = TRUE</span> 💘
+          <br/>Ok… maintenant je veux ma récompense : un câlin + une photo. 😌
+        </p>
+        <div class="actions">
+          <button class="btn good" id="btnClose"><span aria-hidden="true">💞</span> Ok bébé</button>
+          <button class="btn primary" id="btnFinalMessage"><span aria-hidden="true">📝</span> Message final</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  // =====================
+  // 0) PERSONNALISATION
+  // =====================
+  const CONFIG = {
+    herName: "Haffsa",  // ← change ici
+    myName: "Joe",      // ← change ici
+    capturesToWin: 3,
+    // Petits souvenirs / phrases (optionnel) :
+    memories: [
+      "Ton sourire > toutes les features du monde.",
+      "J’aime ton énergie. Même quand tu me rends fou 😅",
+      "Toi + moi = un truc qui marche, tout simplement."
+    ],
+    // Message final affiché après OUI :
+    finalMessage: "Ok… maintenant tu es officiellement ma Valentine 💘\nJe te choisis. Aujourd’hui et tous les jours."
+  };
+
+  // =====================
+  // 1) ELEMENTS
+  // =====================
+  const $ = (s) => document.querySelector(s);
+  const herNameEl = $("#herName");
+  const myNameEl = $("#myName");
+  const modeLabel = $("#modeLabel");
+  const bar = $("#bar");
+  const logEl = $("#log");
+  const statusEl = $("#status");
+
+  const views = {
+    intro: $("#view-intro"),
+    game: $("#view-game"),
+    compile: $("#view-compile"),
+    final: $("#view-final"),
+  };
+
+  const btnStart = $("#btnStart");
+  const btnAudio = $("#btnAudio");
+  const btnCustomize = $("#btnCustomize");
+
+  const btnBackIntro = $("#btnBackIntro");
+  const btnSkipGame = $("#btnSkipGame");
+
+  const arena = $("#arena");
+  const target = $("#target");
+  const capturesEl = $("#captures");
+  const levelEl = $("#level");
+
+  const compileBar = $("#compileBar");
+  const compilePct = $("#compilePct");
+  const compileLog = $("#compileLog");
+  const btnAbort = $("#btnAbort");
+
+  const choiceArea = $("#choiceArea");
+  const btnYes = $("#btnYes");
+  const btnNo = $("#btnNo");
+  const btnReplay = $("#btnReplay");
+  const btnShareHint = $("#btnShareHint");
+
+  const overlay = $("#overlay");
+  const btnClose = $("#btnClose");
+  const btnFinalMessage = $("#btnFinalMessage");
+  const modalMsg = $("#modalMsg");
+
+  const clockEl = $("#clock");
+
+  // Confetti canvas
+  const confettiCanvas = $("#confetti");
+  const ctx = confettiCanvas.getContext("2d");
+  let confetti = [];
+  let confettiRunning = false;
+
+  // Audio (simple beep-ish via WebAudio)
+  let audioCtx = null;
+  let audioEnabled = false;
+
+  // =====================
+  // 2) UTILS
+  // =====================
+  function setView(name){
+    Object.values(views).forEach(v => v.classList.remove("active"));
+    views[name].classList.add("active");
+    modeLabel.textContent = name.toUpperCase();
+  }
+
+  function clamp(n,min,max){ return Math.max(min, Math.min(max,n)); }
+
+  function rand(min,max){ return Math.random()*(max-min)+min; }
+
+  function setProgress(pct){
+    bar.style.width = `${pct}%`;
+  }
+
+  function addLog(line){
+    const t = logEl.textContent.trimEnd();
+    logEl.textContent = t + "\n" + line;
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  function vibrate(ms){
+    // mobile haptics if available
+    if (navigator.vibrate) navigator.vibrate(ms);
+  }
+
+  function resizeCanvas(){
+    confettiCanvas.width = window.innerWidth * devicePixelRatio;
+    confettiCanvas.height = window.innerHeight * devicePixelRatio;
+    ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+  }
+
+  function beep(freq=440, duration=0.07, type="sine", gain=0.06){
+    if (!audioEnabled) return;
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = type;
+    o.frequency.value = freq;
+    g.gain.value = gain;
+    o.connect(g);
+    g.connect(audioCtx.destination);
+    o.start();
+    o.stop(audioCtx.currentTime + duration);
+  }
+
+  function successSound(){
+    beep(523, .06, "sine", .07);
+    setTimeout(()=>beep(659, .07, "sine", .07), 70);
+    setTimeout(()=>beep(784, .09, "sine", .08), 160);
+  }
+
+  function failSound(){
+    beep(220, .08, "square", .05);
+    setTimeout(()=>beep(196, .10, "square", .05), 90);
+  }
+
+  function safeCenterPosition(el, container){
+    const r = container.getBoundingClientRect();
+    const w = el.offsetWidth;
+    const h = el.offsetHeight;
+    return {
+      x: rand(w/2 + 8, r.width - w/2 - 8),
+      y: rand(h/2 + 8, r.height - h/2 - 8),
+    };
+  }
+
+  function placeTargetRandom(){
+    const r = arena.getBoundingClientRect();
+    const w = target.offsetWidth;
+    const h = target.offsetHeight;
+    const x = rand(w/2 + 10, r.width - w/2 - 10);
+    const y = rand(h/2 + 10, r.height - h/2 - 10);
+    target.style.left = `${x}px`;
+    target.style.top = `${y}px`;
+  }
+
+  // =====================
+  // 3) CLOCK
+  // =====================
+  function tickClock(){
+    const d = new Date();
+    const hh = String(d.getHours()).padStart(2,"0");
+    const mm = String(d.getMinutes()).padStart(2,"0");
+    clockEl.textContent = `${hh}:${mm}`;
+  }
+  tickClock();
+  setInterval(tickClock, 10000);
+
+  // =====================
+  // 4) INTRO INIT
+  // =====================
+  herNameEl.textContent = CONFIG.herName;
+  myNameEl.textContent = CONFIG.myName;
+
+  let initPct = 0;
+  const initInterval = setInterval(() => {
+    initPct = clamp(initPct + rand(6, 14), 0, 100);
+    setProgress(initPct);
+    if (initPct > 92 && statusEl.textContent !== "READY") statusEl.textContent = "READY";
+    if (initPct >= 100){
+      clearInterval(initInterval);
+      setProgress(100);
+      statusEl.textContent = "READY";
+      addLog("[boot] Mode: READY ✅");
+    }
+  }, 380);
+
+  // Keyboard shortcut (Enter)
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && views.intro.classList.contains("active")) {
+      startFlow();
+    }
+  });
+
+  btnAudio.addEventListener("click", async () => {
+    audioEnabled = !audioEnabled;
+    if (audioEnabled) {
+      // Ensure context resumed on user gesture
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === "suspended") await audioCtx.resume();
+      btnAudio.innerHTML = "🎵 Ambiance: ON";
+      addLog("[audio] Ambiance activée ✅");
+      beep(440,.05,"sine",.06);
+    } else {
+      btnAudio.innerHTML = "🎵 Activer l’ambiance";
+      addLog("[audio] Ambiance désactivée.");
+    }
+  });
+
+  btnCustomize.addEventListener("click", () => {
+    const her = prompt("Prénom de ta copine :", CONFIG.herName) || CONFIG.herName;
+    const me = prompt("Ton prénom :", CONFIG.myName) || CONFIG.myName;
+    CONFIG.herName = her.trim();
+    CONFIG.myName = me.trim();
+    herNameEl.textContent = CONFIG.herName;
+    myNameEl.textContent = CONFIG.myName;
+    addLog(`[cfg] herName="${CONFIG.herName}"`);
+    addLog(`[cfg] myName="${CONFIG.myName}"`);
+  });
+
+  btnStart.addEventListener("click", startFlow);
+
+  function startFlow(){
+    beep(660,.05,"sine",.07);
+    setView("game");
+    resetGame();
+    placeTargetRandom();
+    addLog("[run] Lancement du mini-jeu…");
+  }
+
+  btnBackIntro.addEventListener("click", () => {
+    setView("intro");
+    beep(330,.05,"sine",.05);
+  });
+
+  btnSkipGame.addEventListener("click", () => {
+    // cheat
+    captures = CONFIG.capturesToWin;
+    capturesEl.textContent = captures;
+    beep(880,.04,"sine",.06);
+    proceedToCompile();
+  });
+
+  // =====================
+  // 5) GAME LOGIC
+  // =====================
+  let captures = 0;
+  let difficulty = 1; // increases after each capture
+
+  function resetGame(){
+    captures = 0;
+    difficulty = 1;
+    capturesEl.textContent = "0";
+    levelEl.textContent = "EASY";
+  }
+
+  function updateLevel(){
+    if (difficulty <= 1) levelEl.textContent = "EASY";
+    else if (difficulty === 2) levelEl.textContent = "MEDIUM";
+    else levelEl.textContent = "HARD";
+  }
+
+  function onCapture(){
+    captures++;
+    difficulty = clamp(difficulty + 1, 1, 3);
+    capturesEl.textContent = String(captures);
+    updateLevel();
+
+    vibrate(30);
+    successSound();
+
+    // Tiny floating memory in console
+    const mem = CONFIG.memories[(captures-1) % CONFIG.memories.length];
+    addLog(`[mem] ${mem}`);
+
+    if (captures >= CONFIG.capturesToWin){
+      proceedToCompile();
+    } else {
+      // Harder movement
+      placeTargetRandom();
+    }
+  }
+
+  // Click/tap target
+  target.addEventListener("click", onCapture);
+  target.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    onCapture();
+  }, {passive:false});
+
+  // Make target dodge pointer a bit to feel “gamey”
+  function dodge(x, y){
+    const r = arena.getBoundingClientRect();
+    const t = target.getBoundingClientRect();
+    const cx = t.left - r.left + t.width/2;
+    const cy = t.top - r.top + t.height/2;
+
+    const dx = cx - x;
+    const dy = cy - y;
+    const dist = Math.hypot(dx,dy);
+
+    const dodgeRadius = difficulty === 1 ? 85 : (difficulty === 2 ? 120 : 150);
+    if (dist < dodgeRadius){
+      // Move away
+      const angle = Math.atan2(dy, dx);
+      const push = difficulty === 1 ? 18 : (difficulty === 2 ? 26 : 36);
+      let nx = cx + Math.cos(angle) * push;
+      let ny = cy + Math.sin(angle) * push;
+
+      nx = clamp(nx, 40, r.width - 40);
+      ny = clamp(ny, 40, r.height - 40);
+
+      target.style.left = `${nx}px`;
+      target.style.top = `${ny}px`;
+    }
+  }
+
+  arena.addEventListener("mousemove", (e) => {
+    const r = arena.getBoundingClientRect();
+    const x = e.clientX - r.left;
+    const y = e.clientY - r.top;
+    dodge(x,y);
+  });
+
+  arena.addEventListener("touchmove", (e) => {
+    e.preventDefault();
+    const r = arena.getBoundingClientRect();
+    const t = e.touches[0];
+    const x = t.clientX - r.left;
+    const y = t.clientY - r.top;
+    dodge(x,y);
+  }, {passive:false});
+
+  function proceedToCompile(){
+    setView("compile");
+    beep(520,.05,"sine",.06);
+    runCompile();
+  }
+
+  // =====================
+  // 6) COMPILE SEQUENCE
+  // =====================
+  let compileAbort = false;
+
+  btnAbort.addEventListener("click", () => {
+    compileAbort = true;
+    failSound();
+    setView("intro");
+    addLog("[compile] Annulé. Retour à INIT.");
+  });
+
+  async function runCompile(){
+    compileAbort = false;
+    compileBar.style.width = "0%";
+    compilePct.textContent = "0%";
+    compileLog.textContent = "[compile] Starting…";
+
+    const steps = [
+      {p: 14, msg: "[compile] Bundling feelings…"},
+      {p: 28, msg: "[compile] Linking memories…"},
+      {p: 44, msg: "[compile] Optimizing hugs…"},
+      {p: 62, msg: "[compile] Checking smile compatibility…"},
+      {p: 78, msg: "[compile] Injecting romance.js…"},
+      {p: 92, msg: "[compile] Finalizing ValentineMode…"},
+      {p: 100,msg: "[compile] Done ✅"}
+    ];
+
+    for (const s of steps){
+      if (compileAbort) return;
+      await sleep(rand(520, 900));
+      compileBar.style.width = `${s.p}%`;
+      compilePct.textContent = `${s.p}%`;
+      compileLog.textContent += "\n" + s.msg;
+      beep(250 + s.p*6, .03, "sine", .04);
+      vibrate(10);
+    }
+
+    await sleep(450);
+    setView("final");
+    addLog("[run] ValentineMode prêt 💘");
+    positionFinalButtons();
+  }
+
+  function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+
+  // =====================
+  // 7) FINAL (NO RUNS AWAY)
+  // =====================
+  function positionFinalButtons(){
+    // Keep initial layout (already set inline), but ensure inside bounds.
+    const area = choiceArea.getBoundingClientRect();
+    // nothing else needed, but we can clamp after resize
+    clampButtonInside(btnYes);
+    clampButtonInside(btnNo);
+  }
+
+  function clampButtonInside(btn){
+    const area = choiceArea.getBoundingClientRect();
+    const br = btn.getBoundingClientRect();
+    const w = br.width, h = br.height;
+
+    // Convert current left/top (px) relative to choiceArea
+    const left = parseFloat(btn.style.left || "0");
+    const top = parseFloat(btn.style.top || "0");
+
+    const maxX = area.width - w - 8;
+    const maxY = area.height - h - 8;
+
+    const nx = clamp(left, 8, maxX);
+    const ny = clamp(top, 8, maxY);
+
+    btn.style.left = `${nx}px`;
+    btn.style.top  = `${ny}px`;
+  }
+
+  function moveNoAwayFrom(x, y){
+    const area = choiceArea.getBoundingClientRect();
+    const br = btnNo.getBoundingClientRect();
+    const w = br.width, h = br.height;
+
+    // pointer coords relative to area
+    const px = x - area.left;
+    const py = y - area.top;
+
+    const curX = parseFloat(btnNo.style.left || "0");
+    const curY = parseFloat(btnNo.style.top || "0");
+    const cx = curX + w/2;
+    const cy = curY + h/2;
+
+    const dx = cx - px;
+    const dy = cy - py;
+    const dist = Math.hypot(dx,dy);
+
+    const danger = Math.min(area.width, area.height) * 0.35;
+    if (dist < danger){
+      const angle = Math.atan2(dy, dx);
+      const push = clamp(80 - dist, 18, 64); // more push when closer
+      let nx = cx + Math.cos(angle) * push;
+      let ny = cy + Math.sin(angle) * push;
+
+      // add randomness to feel “alive”
+      nx += rand(-22, 22);
+      ny += rand(-22, 22);
+
+      // clamp within area
+      nx = clamp(nx, w/2 + 8, area.width - w/2 - 8);
+      ny = clamp(ny, h/2 + 8, area.height - h/2 - 8);
+
+      btnNo.style.left = `${nx - w/2}px`;
+      btnNo.style.top  = `${ny - h/2}px`;
+
+      // tiny “panic” feedback
+      beep(180 + rand(0,80), .02, "square", .03);
+      vibrate(8);
+    }
+  }
+
+  // PC hover near "NO"
+  choiceArea.addEventListener("mousemove", (e) => {
+    moveNoAwayFrom(e.clientX, e.clientY);
+  });
+
+  // Mobile touch near "NO"
+  choiceArea.addEventListener("touchmove", (e) => {
+    e.preventDefault();
+    const t = e.touches[0];
+    moveNoAwayFrom(t.clientX, t.clientY);
+  }, {passive:false});
+
+  // If she taps NO directly, still dodge + playful message
+  btnNo.addEventListener("click", (e) => {
+    e.preventDefault();
+    failSound();
+    // teleport somewhere else
+    const area = choiceArea.getBoundingClientRect();
+    const w = btnNo.getBoundingClientRect().width;
+    const h = btnNo.getBoundingClientRect().height;
+    const pos = safeCenterPosition(btnNo, choiceArea);
+    btnNo.style.left = `${pos.x - w/2}px`;
+    btnNo.style.top  = `${pos.y - h/2}px`;
+  });
+
+  btnNo.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    failSound();
+    const w = btnNo.getBoundingClientRect().width;
+    const h = btnNo.getBoundingClientRect().height;
+    const pos = safeCenterPosition(btnNo, choiceArea);
+    btnNo.style.left = `${pos.x - w/2}px`;
+    btnNo.style.top  = `${pos.y - h/2}px`;
+  }, {passive:false});
+
+  btnYes.addEventListener("click", win);
+  btnYes.addEventListener("touchstart", (e)=>{ e.preventDefault(); win(); }, {passive:false});
+
+  function win(){
+    successSound();
+    startConfetti();
+    overlay.classList.add("show");
+
+    modalMsg.innerHTML =
+      `Statut mis à jour : <span class="glow">VALENTINE = TRUE</span> 💘` +
+      `<br/><span class="glow">${CONFIG.myName}</span> → <span class="glow">${CONFIG.herName}</span> : connexion sécurisée ✅` +
+      `<br/><br/><span style="color:rgba(255,255,255,.85)">${escapeHtml(CONFIG.finalMessage).replace(/\n/g,"<br/>")}</span>`;
+  }
+
+  btnClose.addEventListener("click", () => {
+    overlay.classList.remove("show");
+    stopConfettiSoon();
+  });
+
+  btnFinalMessage.addEventListener("click", () => {
+    alert(CONFIG.finalMessage);
+  });
+
+  btnReplay.addEventListener("click", () => {
+    overlay.classList.remove("show");
+    stopConfettiSoon();
+    setView("intro");
+    addLog("[run] Reboot…");
+  });
+
+  btnShareHint.addEventListener("click", async () => {
+    const text =
+      `J’ai un truc pour toi 😏\n` +
+      `Ouvre ça sur ton téléphone : (lien)\n` +
+      `PS: attrape les cœurs 💘`;
+    try{
+      await navigator.clipboard.writeText(text);
+      addLog("[share] Texte copié dans le presse-papiers ✅");
+      beep(660,.05,"sine",.06);
+      alert("Texte d’envoi copié ✅\nColle-le dans WhatsApp/SMS.");
+    }catch{
+      alert("Copie manuelle :\n\n" + text);
+    }
+  });
+
+  // =====================
+  // 8) CONFETTI
+  // =====================
+  resizeCanvas();
+  window.addEventListener("resize", () => {
+    resizeCanvas();
+    positionFinalButtons();
+  });
+
+  function startConfetti(){
+    confettiRunning = true;
+    confetti = [];
+    for (let i=0;i<160;i++){
+      confetti.push({
+        x: rand(0, window.innerWidth),
+        y: rand(-window.innerHeight, 0),
+        r: rand(3, 7),
+        vx: rand(-1.5, 1.5),
+        vy: rand(2.2, 5.8),
+        rot: rand(0, Math.PI*2),
+        vr: rand(-0.12, 0.12),
+        shape: Math.random() < 0.2 ? "heart" : "rect",
+        life: rand(120, 260)
+      });
+    }
+    requestAnimationFrame(drawConfetti);
+  }
+
+  function drawConfetti(){
+    if (!confettiRunning) return;
+    ctx.clearRect(0,0,window.innerWidth, window.innerHeight);
+
+    confetti.forEach(p => {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.rot += p.vr;
+      p.life -= 1;
+
+      if (p.y > window.innerHeight + 30 || p.life <= 0){
+        p.y = rand(-120, -20);
+        p.x = rand(0, window.innerWidth);
+        p.life = rand(120, 260);
+      }
+
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+
+      // no fixed colors requested -> default canvas colors are fine; but we still need fillStyle.
+      // We'll derive dynamic hues so it's not "choosing a specific palette" too hard.
+      const hue = (p.x + p.y) % 360;
+      ctx.fillStyle = `hsla(${hue}, 90%, 60%, .85)`;
+
+      if (p.shape === "rect"){
+        ctx.fillRect(-p.r, -p.r, p.r*2.2, p.r*1.4);
+      } else {
+        // simple heart
+        ctx.beginPath();
+        const s = p.r * 0.22;
+        ctx.moveTo(0, 3*s);
+        ctx.bezierCurveTo(0, 0, -6*s, 0, -6*s, 3*s);
+        ctx.bezierCurveTo(-6*s, 6*s, 0, 7.5*s, 0, 10*s);
+        ctx.bezierCurveTo(0, 7.5*s, 6*s, 6*s, 6*s, 3*s);
+        ctx.bezierCurveTo(6*s, 0, 0, 0, 0, 3*s);
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      ctx.restore();
+    });
+
+    requestAnimationFrame(drawConfetti);
+  }
+
+  let confettiStopTimer = null;
+  function stopConfettiSoon(){
+    if (confettiStopTimer) clearTimeout(confettiStopTimer);
+    confettiStopTimer = setTimeout(() => {
+      confettiRunning = false;
+      ctx.clearRect(0,0,window.innerWidth, window.innerHeight);
+    }, 1200);
+  }
+
+  // =====================
+  // 9) SMALL SAFETY
+  // =====================
+  function escapeHtml(s){
+    return String(s)
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+
+})();
+</script>
+</body>
+</html>
